@@ -1,11 +1,11 @@
 package de.babiesjulius.smoothiepos.backend.database.tables
 
 import de.babiesjulius.smoothiepos.backend.database.Column
+import de.babiesjulius.smoothiepos.backend.database.Database
 import de.babiesjulius.smoothiepos.backend.database.Database.Companion.getConnection
 import de.babiesjulius.smoothiepos.backend.database.Table
 import de.babiesjulius.smoothiepos.backend.database.Tables
 import de.babiesjulius.smoothiepos.backend.objects.Order
-import java.util.*
 
 class OrderTable : Table<Order>(
     Tables.ORDER,
@@ -27,8 +27,7 @@ class OrderTable : Table<Order>(
         statement.executeUpdate("INSERT INTO ${Tables.ORDER} (id, cashpoint_id) VALUES ('$id', '${item.cashpoint}')")
 
         item.products.forEach { orderDetail ->
-            OrderDetailTable().
-            create(orderDetail, id)
+            OrderDetailTable().create(orderDetail, id)
         }
         statement.close()
         return id
@@ -70,6 +69,35 @@ class OrderTable : Table<Order>(
     }
 
     override fun filter(filter: List<Triple<String, String, String>>): Array<Order> {
-        TODO("Not yet implemented")
+        val connection = getConnection()
+        val statement = connection.createStatement()
+        var sql = "SELECT * FROM ${Tables.ORDER}"
+        sql += if (filter.isNotEmpty()) {
+            " WHERE "
+        } else {
+            ""
+        }
+        filter.forEachIndexed { index, triple ->
+            sql += "${triple.first} ${triple.second} '${triple.third}'"
+            if (index < filter.size - 1) {
+                sql += " AND "
+            }
+        }
+        val resultSet = statement.executeQuery(sql)
+        val orders = arrayListOf<Order>()
+        while (resultSet.next()) {
+            orders.add(
+                Order(
+                    resultSet.getString("id"),
+                    Database.getDatabase().orderDetailTable.filter(listOf(Triple("order_id", "=", resultSet.getString("id")))).toList(),
+                    resultSet.getString("cashpoint_id"),
+                    resultSet.getTimestamp("create_at").time,
+                    resultSet.getInt("status")
+                )
+            )
+        }
+        resultSet.close()
+        statement.close()
+        return orders.toTypedArray()
     }
 }

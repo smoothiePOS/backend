@@ -5,7 +5,6 @@ import de.babiesjulius.smoothiepos.backend.database.Database
 import de.babiesjulius.smoothiepos.backend.database.Table
 import de.babiesjulius.smoothiepos.backend.database.Tables
 import de.babiesjulius.smoothiepos.backend.objects.OrderDetail
-import org.apache.logging.log4j.LogManager
 
 class OrderDetailTable : Table<OrderDetail>(
     Tables.ORDER_DETAIL,
@@ -51,6 +50,25 @@ class OrderDetailTable : Table<OrderDetail>(
     }
 
     override fun filter(filter: List<Triple<String, String, String>>): Array<OrderDetail> {
-        TODO("Not yet implemented")
+        val connection = Database.getConnection()
+        val statement = connection.createStatement()
+        var sql = "SELECT * FROM ${Tables.ORDER_DETAIL}"
+        sql += " WHERE "
+        filter.forEach {
+            sql += "${it.first} ${it.second} '${it.third}' AND "
+        }
+        sql += "1=1"
+        val resultSet = statement.executeQuery(sql)
+        val list = mutableListOf<OrderDetail>()
+        while (resultSet.next()) {
+            list.add(
+                OrderDetail(
+                    resultSet.getString("product_id"),
+                    resultSet.getInt("amount")
+                )
+            )
+        }
+        statement.close()
+        return list.toTypedArray()
     }
 }
