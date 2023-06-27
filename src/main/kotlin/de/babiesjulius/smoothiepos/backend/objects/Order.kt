@@ -1,4 +1,4 @@
 package de.babiesjulius.smoothiepos.backend.objects
 
-data class Order(val id: String?, var products: List<OrderDetail>, val cashpoint: String?, val date: Long?)
-data class OrderDetail(val product: Product, val amount: Int)
+data class Order(val id: String?, var products: List<OrderDetail>, val cashpoint: String?, val date: Long?, var status: Int?)
+data class OrderDetail(val productId: String, val amount: Int)

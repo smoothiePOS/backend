@@ -19,11 +19,15 @@ abstract class Table<T>(
             statement.executeUpdate("DROP TABLE IF EXISTS $name")
             statement.executeUpdate("SET FOREIGN_KEY_CHECKS = 1")
         }
-        LogManager.getLogger().debug("CREATE TABLE IF NOT EXISTS $name (${columns.joinToString(", ") { "${it.name} ${it.type}" }})")
+        val rs = statement.executeQuery("SHOW TABLES LIKE '$name'")
+        if (rs.next() || !rebuild) {
+            statement.close()
+            return
+        }
         statement.executeUpdate(
             "CREATE TABLE IF NOT EXISTS $name (${columns.joinToString(", ") { "${it.name} ${it.type}" }})")
         foreignKeys.forEach { (key, value) ->
-            statement.executeUpdate("ALTER TABLE $name ADD FOREIGN KEY ($key) REFERENCES $value")
+            statement.executeUpdate("ALTER TABLE $name ADD CONSTRAINT ${UUID.randomUUID().toString().replace("-", "_")} FOREIGN KEY ($key) REFERENCES $value ON DELETE CASCADE ON UPDATE CASCADE")
         }
         columns.forEach { column ->
             if (column.unique) {
@@ -34,15 +38,17 @@ abstract class Table<T>(
     }
 
     fun createUUID(): String {
+        var uuid: String = ""
         while (true) {
-            val uuid = UUID.randomUUID().toString()
+            uuid = UUID.randomUUID().toString()
             val connection = Database.getConnection()
             val statement = connection.createStatement()
             val result = statement.executeQuery("SELECT * FROM $name WHERE id = '$uuid'")
             if (!result.next()) {
-                return uuid
+                break
             }
         }
+        return uuid
     }
 
     @Throws(SQLIntegrityConstraintViolationException::class)

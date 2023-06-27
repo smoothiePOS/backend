@@ -2,9 +2,12 @@ package de.babiesjulius.smoothiepos.backend.controller.ui
 
 import com.google.gson.Gson
 import de.babiesjulius.smoothiepos.backend.database.Database
+import de.babiesjulius.smoothiepos.backend.objects.Order
+import org.springframework.http.HttpEntity
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 
 @Controller
 class CashpointController {
@@ -24,5 +27,12 @@ class CashpointController {
             cashpointProducts.add(CashpointProduct(product.id!!, product.name, product.price, product.available && database.ingredientTable.read().filter { it.id in product.ingredients }.all { it.available }))
         }
         return ResponseEntity.ok().body(Gson().toJson(cashpointProducts))
+    }
+
+    @PostMapping("/cashpoint/order")
+    fun addOrder(httpEntity: HttpEntity<String>): ResponseEntity<String> {
+        val body = httpEntity.body ?: return ResponseEntity.badRequest().body("No body provided")
+        val order = Gson().fromJson(body, Order::class.java)
+        return ResponseEntity.ok().body(Database.getDatabase().orderTable.create(order))
     }
 }
