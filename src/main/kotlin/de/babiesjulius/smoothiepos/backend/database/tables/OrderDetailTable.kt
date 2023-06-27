@@ -4,8 +4,8 @@ import de.babiesjulius.smoothiepos.backend.database.Column
 import de.babiesjulius.smoothiepos.backend.database.Database
 import de.babiesjulius.smoothiepos.backend.database.Table
 import de.babiesjulius.smoothiepos.backend.database.Tables
-import de.babiesjulius.smoothiepos.backend.objects.Order
 import de.babiesjulius.smoothiepos.backend.objects.OrderDetail
+import org.apache.logging.log4j.LogManager
 
 class OrderDetailTable : Table<OrderDetail>(
     Tables.ORDER_DETAIL,
@@ -16,33 +16,16 @@ class OrderDetailTable : Table<OrderDetail>(
         Column("amount", "int")
     ),
     hashMapOf(
-        "order_id" to "orders(id)",
-        "product_id" to "product(id)"
+        "order_id" to "${Tables.ORDER}(id)",
+        "product_id" to "${Tables.PRODUCT}(id)"
     )
 ) {
-    fun getOrderDetails(order: Order): Array<OrderDetail> {
-        return getOrderDetails(order.id!!)
-    }
-
-    fun getOrderDetails(id: String): Array<OrderDetail> {
-        val connection = Database.getConnection()
-        val statement = connection.createStatement()
-        val resultSet = statement.executeQuery("SELECT * FROM ${Tables.ORDER_DETAIL} LEFT JOIN ${Tables.ORDER} ON order_id = ${Tables.ORDER}.id WHERE order_id = '$id'")
-        val products = mutableListOf<OrderDetail>()
-        while (resultSet.next()) {
-            products.add(OrderDetail(
-                ProductTable().find(resultSet.getString("product_id"))!!,
-                resultSet.getInt("amount")))
-        }
-        statement.close()
-        return products.toTypedArray()
-    }
 
     fun create(item: OrderDetail, orderId: String): String {
         val connection = Database.getConnection()
         val statement = connection.createStatement()
         val id = this.createUUID()
-        statement.executeUpdate("INSERT INTO ${Tables.ORDER_DETAIL} (id, order_id, product_id, amount) VALUES ('$id', '$orderId', '${item.product.id}', ${item.amount})")
+        statement.executeUpdate("INSERT INTO ${Tables.ORDER_DETAIL} (id, order_id, product_id, amount) VALUES ('$id', '${orderId}', '${item.productId}', ${item.amount})")
         statement.close()
         return id
     }

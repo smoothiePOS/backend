@@ -14,6 +14,7 @@ class Database {
     val ingredientsTable = IngredientsTable()
     val orderTable = OrderTable()
     val orderDetailTable = OrderDetailTable()
+    val cashpointTable = CashpointTable()
 
 
     companion object {
@@ -39,6 +40,7 @@ class Database {
 
     init {
         val rebuild = false // true will drop all tables and recreate them
+        cashpointTable.createTable(rebuild)
         productTable.createTable(rebuild)
         ingredientTable.createTable(rebuild)
         ingredientsTable.createTable(rebuild)

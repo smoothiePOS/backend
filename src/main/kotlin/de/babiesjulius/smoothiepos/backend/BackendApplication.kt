@@ -32,6 +32,7 @@ fun main(args: Array<String>) {
         Database.getDatabase() // creates a database instance
     } catch (e: SQLException) {
         logger.error("Could not connect to database, exiting (${e.message})")
+        logger.error(e.stackTraceToString())
         exitProcess(1)
     }
 

@@ -11,19 +11,24 @@ class OrderTable : Table<Order>(
     Tables.ORDER,
     listOf(
         Column("id", "UUID PRIMARY KEY DEFAULT UUID()"),
-        Column("cashpoint", "UUID"), // TODO add foreign key
+        Column("cashpoint_id", "UUID"),
+        Column("status", "INT DEFAULT 0"),
         Column("create_at", "TIMESTAMP DEFAULT CURRENT_TIMESTAMP"),
     ),
+    hashMapOf(
+        "cashpoint_id" to "cashpoint(id)"
+    )
 ) {
 
     override fun create(item: Order): String {
         val connection = getConnection()
         val statement = connection.createStatement()
         val id = this.createUUID()
-        statement.executeUpdate("INSERT INTO ${Tables.ORDER} (id) VALUES ('$id')")
+        statement.executeUpdate("INSERT INTO ${Tables.ORDER} (id, cashpoint_id) VALUES ('$id', '${item.cashpoint}')")
 
         item.products.forEach { orderDetail ->
-            OrderDetailTable().create(orderDetail, id)
+            OrderDetailTable().
+            create(orderDetail, id)
         }
         statement.close()
         return id
@@ -49,7 +54,8 @@ class OrderTable : Table<Order>(
                     resultSet.getString("id"),
                     listOf(),
                     resultSet.getString("cashpoint"),
-                    resultSet.getTimestamp("create_at").time
+                    resultSet.getTimestamp("create_at").time,
+                    resultSet.getInt("status")
                 )
             )
         }
