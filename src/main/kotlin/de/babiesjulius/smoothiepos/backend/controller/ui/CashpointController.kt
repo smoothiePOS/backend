@@ -7,6 +7,7 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 
 @Controller
@@ -34,5 +35,11 @@ class CashpointController {
         val body = httpEntity.body ?: return ResponseEntity.badRequest().body("No body provided")
         val order = Gson().fromJson(body, Order::class.java)
         return ResponseEntity.ok().body(Database.getDatabase().orderTable.create(order))
+    }
+
+    @GetMapping("/cashpoint/customer/order/{cashpointId}")
+    fun getCustomerOrders(@PathVariable("cashpointId") cashpointId: String): ResponseEntity<String> {
+        val order = Database.getDatabase().orderTable.filter(listOf(Triple("cashpoint_id", "=", cashpointId), Triple("status", "=", "0")))
+        return ResponseEntity.ok().body(Gson().toJson(order))
     }
 }
