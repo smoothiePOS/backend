@@ -5,8 +5,13 @@ import de.babiesjulius.smoothiepos.backend.system.EnvironmentVariables
 import org.apache.logging.log4j.LogManager
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import org.springframework.context.annotation.Configuration
+import org.springframework.web.servlet.config.annotation.CorsRegistry
+import org.springframework.web.servlet.config.annotation.EnableWebMvc
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import java.sql.SQLException
 import kotlin.system.exitProcess
+
 
 @SpringBootApplication
 class BackendApplication
@@ -33,4 +38,13 @@ fun main(args: Array<String>) {
     logger.info("Database created")
 
     runApplication<BackendApplication>(*args)
+}
+
+
+@Configuration
+@EnableWebMvc
+class WebConfig : WebMvcConfigurer {
+    override fun addCorsMappings(registry: CorsRegistry) {
+        registry.addMapping("/**")
+    }
 }
