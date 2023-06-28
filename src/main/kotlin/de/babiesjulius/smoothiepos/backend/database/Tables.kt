@@ -7,5 +7,6 @@ class Tables {
         @JvmStatic val INGREDIENTS = "ingredients"
         @JvmStatic val ORDER = "orders"
         @JvmStatic val ORDER_DETAIL = "order_detail"
+        @JvmStatic val CASHPOINT = "cashpoint"
     }
 }

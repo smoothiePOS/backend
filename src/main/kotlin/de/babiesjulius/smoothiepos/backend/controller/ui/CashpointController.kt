@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.PostMapping
 class CashpointController {
 
     private data class CashpointProduct(val id: String, val name: String, val price: Int, val available: Boolean)
+    private data class CashpointCashpointsResponseCashpoint(val name: String, val available: Boolean)
+    private data class CashpointCashpointsResponse(val cashpoints: Map<String, CashpointCashpointsResponseCashpoint>)
 
     @GetMapping("/cashpoint/products")
     fun getProducts(): ResponseEntity<String> {
@@ -41,5 +43,15 @@ class CashpointController {
     fun getCustomerOrders(@PathVariable("cashpointId") cashpointId: String): ResponseEntity<String> {
         val order = Database.getDatabase().orderTable.filter(listOf(Triple("cashpoint_id", "=", cashpointId), Triple("status", "=", "0")))
         return ResponseEntity.ok().body(Gson().toJson(order))
+    }
+
+    @GetMapping("/cashpoints")
+    fun getCashpoints(): ResponseEntity<String> {
+        val cashpoints = Database.getDatabase().cashpointTable.read()
+        val cashpointCashpoints = hashMapOf<String, CashpointCashpointsResponseCashpoint>()
+        cashpoints.forEach { cashpoint ->
+            cashpointCashpoints[cashpoint.id!!] = CashpointCashpointsResponseCashpoint(cashpoint.name, cashpoint.available)
+        }
+        return ResponseEntity.ok().body(Gson().toJson(CashpointCashpointsResponse(cashpointCashpoints)))
     }
 }
