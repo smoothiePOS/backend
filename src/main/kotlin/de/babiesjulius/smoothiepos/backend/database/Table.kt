@@ -51,11 +51,31 @@ abstract class Table<T>(
         return uuid
     }
 
+    fun clear() {
+        val connection = Database.getConnection()
+        val statement = connection.createStatement()
+        statement.executeUpdate("TRUNCATE TABLE $name")
+        statement.close()
+    }
+
+    fun clear(filter: List<Triple<String, String, String>>) {
+        val connection = Database.getConnection()
+        val statement = connection.createStatement()
+        statement.executeUpdate("DELETE FROM $name WHERE ${filter.joinToString(" AND ") { "${it.first} ${it.second} '${it.third}'" }}")
+        statement.close()
+    }
+
     @Throws(SQLIntegrityConstraintViolationException::class)
     abstract fun create(item: T): String
-    abstract fun delete(item: T)
-    abstract fun update(item: T)
     abstract fun read(): Array<T>
+    abstract fun update(item: T)
+
+    /**
+     * Deletes the item from the database
+     * @param item The item to delete (only the id is needed)
+     */
+    abstract fun delete(item: T)
+
     abstract fun find(id: String): T?
     abstract fun filter(filter: List<Triple<String, String, String>>) : Array<T>
 }
