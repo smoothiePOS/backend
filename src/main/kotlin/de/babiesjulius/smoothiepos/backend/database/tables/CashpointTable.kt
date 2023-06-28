@@ -1,11 +1,13 @@
 package de.babiesjulius.smoothiepos.backend.database.tables
 
 import de.babiesjulius.smoothiepos.backend.database.Column
+import de.babiesjulius.smoothiepos.backend.database.Database
 import de.babiesjulius.smoothiepos.backend.database.Table
+import de.babiesjulius.smoothiepos.backend.database.Tables
 import de.babiesjulius.smoothiepos.backend.objects.Cashpoint
 
 class CashpointTable : Table<Cashpoint>(
-    "cashpoint",
+    Tables.CASHPOINT,
     listOf(
         Column("id", "UUID PRIMARY KEY DEFAULT UUID()"),
         Column("name", "VARCHAR(255)"),
@@ -28,7 +30,16 @@ class CashpointTable : Table<Cashpoint>(
     }
 
     override fun read(): Array<Cashpoint> {
-        TODO("Not yet implemented")
+        val connection = Database.getConnection()
+        val statement = connection.createStatement()
+        val resultSet = statement.executeQuery("SELECT * FROM ${Tables.CASHPOINT} ORDER BY name")
+        val cashpoints = arrayListOf<Cashpoint>()
+        while (resultSet.next()) {
+            cashpoints.add(Cashpoint(resultSet.getString("id"), resultSet.getString("name"), resultSet.getString("ip"), resultSet.getInt("port"), resultSet.getBoolean("available")))
+        }
+        resultSet.close()
+        statement.close()
+        return cashpoints.toTypedArray()
     }
 
     override fun find(id: String): Cashpoint? {
