@@ -33,10 +33,17 @@ class CashpointController {
         return ResponseEntity.ok().body(Gson().toJson(cashpointProducts))
     }
 
+    private data class LiveOrderResponse(val productName: String, val amount: Int, val price: Int, val deposit: Int)
+
     @GetMapping("/cashpoint/{cashpointId}/order/rt/customer")
     fun getCustomerOrders(@PathVariable("cashpointId") cashpointId: String): ResponseEntity<String> {
         val order = Database.getDatabase().liveOrderTable.filter(listOf(Triple("cashpoint_id", "=", cashpointId)))
-        return ResponseEntity.ok().body(Gson().toJson(order))
+        val liveOrderResponse = arrayListOf<LiveOrderResponse>()
+        order.forEach { liveOrder ->
+            val product = Database.getDatabase().productTable.find(liveOrder.productId)
+            liveOrderResponse.add(LiveOrderResponse(product?.name ?: "Unknown", liveOrder.amount!!, product?.price ?: 0, 100)) // TODO transfer deposit to product
+        }
+        return ResponseEntity.ok().body(Gson().toJson(liveOrderResponse.toList()))
     }
 
     @GetMapping("/cashpoints")
