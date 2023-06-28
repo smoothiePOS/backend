@@ -31,7 +31,6 @@ class LiveOrderTable : Table<LiveOrder>(
             )
         ).firstOrNull()
         if (existing != null) {
-            LogManager.getLogger("LiveOrderTable").info("New value: " + (existing.amount!! + item.amount!!).toString())
             if (item.amount == null || existing.amount!! + item.amount!! <= 0) { // delete
                 this.delete(existing)
                 return "0"

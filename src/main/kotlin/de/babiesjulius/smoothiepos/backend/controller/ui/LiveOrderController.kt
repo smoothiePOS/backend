@@ -6,6 +6,8 @@ import de.babiesjulius.smoothiepos.backend.objects.LiveOrder
 import org.springframework.http.HttpEntity
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 
 @Controller
@@ -17,6 +19,21 @@ class LiveOrderController {
     fun addOrder(httpEntity: HttpEntity<String>): ResponseEntity<String> {
         val body = httpEntity.body ?: return ResponseEntity.badRequest().body("No body provided")
         val liveOrder = Gson().fromJson(body, LiveOrderAdd::class.java)
-        return ResponseEntity.ok().body(Database.getDatabase().liveOrderTable.create(LiveOrder(null, liveOrder.cashpointId, liveOrder.productId, liveOrder.amount)))
+        return ResponseEntity.ok().body(
+            Database.getDatabase().liveOrderTable.create(
+                LiveOrder(
+                    null,
+                    liveOrder.cashpointId,
+                    liveOrder.productId,
+                    liveOrder.amount
+                )
+            )
+        )
+    }
+
+    @GetMapping("/liveorder/{cashpointId}/clear")
+    fun clearOrder(@PathVariable("cashpointId") cashpointId: String): ResponseEntity<String> {
+        Database.getDatabase().liveOrderTable.clear(listOf(Triple("cashpoint_id", "=", cashpointId)))
+        return ResponseEntity.ok().body("OK")
     }
 }
