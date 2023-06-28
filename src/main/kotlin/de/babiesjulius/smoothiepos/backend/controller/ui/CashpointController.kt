@@ -2,6 +2,7 @@ package de.babiesjulius.smoothiepos.backend.controller.ui
 
 import com.google.gson.Gson
 import de.babiesjulius.smoothiepos.backend.database.Database
+import de.babiesjulius.smoothiepos.backend.objects.LiveOrder
 import de.babiesjulius.smoothiepos.backend.objects.Order
 import org.springframework.http.HttpEntity
 import org.springframework.http.ResponseEntity
@@ -32,16 +33,9 @@ class CashpointController {
         return ResponseEntity.ok().body(Gson().toJson(cashpointProducts))
     }
 
-    @PostMapping("/cashpoint/order")
-    fun addOrder(httpEntity: HttpEntity<String>): ResponseEntity<String> {
-        val body = httpEntity.body ?: return ResponseEntity.badRequest().body("No body provided")
-        val order = Gson().fromJson(body, Order::class.java)
-        return ResponseEntity.ok().body(Database.getDatabase().orderTable.create(order))
-    }
-
-    @GetMapping("/cashpoint/customer/order/{cashpointId}")
+    @GetMapping("/cashpoint/{cashpointId}/order/rt/customer")
     fun getCustomerOrders(@PathVariable("cashpointId") cashpointId: String): ResponseEntity<String> {
-        val order = Database.getDatabase().orderTable.filter(listOf(Triple("cashpoint_id", "=", cashpointId), Triple("status", "=", "0")))
+        val order = Database.getDatabase().liveOrderTable.filter(listOf(Triple("cashpoint_id", "=", cashpointId)))
         return ResponseEntity.ok().body(Gson().toJson(order))
     }
 
@@ -53,5 +47,29 @@ class CashpointController {
             cashpointCashpoints[cashpoint.id!!] = CashpointCashpointsResponseCashpoint(cashpoint.name, cashpoint.available)
         }
         return ResponseEntity.ok().body(Gson().toJson(CashpointCashpointsResponse(cashpointCashpoints)))
+    }
+
+    private data class LiveOrderAdd(val productId: String, val amount: Int?)
+
+    @PostMapping("/cashpoint/{cashpointId}/order/rt")
+    fun addOrder(httpEntity: HttpEntity<String>, @PathVariable("cashpointId") cashpointId: String): ResponseEntity<String> {
+        val body = httpEntity.body ?: return ResponseEntity.badRequest().body("No body provided")
+        val liveOrder = Gson().fromJson(body, LiveOrderAdd::class.java)
+        return ResponseEntity.ok().body(
+            Database.getDatabase().liveOrderTable.create(
+                LiveOrder(
+                    null,
+                    cashpointId,
+                    liveOrder.productId,
+                    liveOrder.amount
+                )
+            )
+        )
+    }
+
+    @GetMapping("/cashpoint/{cashpointId}/order/rt/clear")
+    fun clearOrder(@PathVariable("cashpointId") cashpointId: String): ResponseEntity<String> {
+        Database.getDatabase().liveOrderTable.clear(listOf(Triple("cashpoint_id", "=", cashpointId)))
+        return ResponseEntity.ok().body("OK")
     }
 }

@@ -15,6 +15,7 @@ class Database {
     val orderTable = OrderTable()
     val orderDetailTable = OrderDetailTable()
     val cashpointTable = CashpointTable()
+    val liveOrderTable = LiveOrderTable()
 
 
     companion object {
@@ -46,5 +47,6 @@ class Database {
         ingredientsTable.createTable(rebuild)
         orderTable.createTable(rebuild)
         orderDetailTable.createTable(rebuild)
+        liveOrderTable.createTable(rebuild)
     }
 }
