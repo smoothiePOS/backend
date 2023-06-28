@@ -35,7 +35,7 @@ class CashpointController {
 
     @GetMapping("/cashpoint/{cashpointId}/order/rt/customer")
     fun getCustomerOrders(@PathVariable("cashpointId") cashpointId: String): ResponseEntity<String> {
-        val order = Database.getDatabase().liveOrderTable.filter(listOf(Triple("cashpoint_id", "=", cashpointId), Triple("status", "=", "0")))
+        val order = Database.getDatabase().liveOrderTable.filter(listOf(Triple("cashpoint_id", "=", cashpointId)))
         return ResponseEntity.ok().body(Gson().toJson(order))
     }
 
