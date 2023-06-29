@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import de.babiesjulius.smoothiepos.backend.database.Database
 import de.babiesjulius.smoothiepos.backend.objects.LiveOrder
 import de.babiesjulius.smoothiepos.backend.objects.Order
+import de.babiesjulius.smoothiepos.backend.objects.OrderDetail
 import org.springframework.http.HttpEntity
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
@@ -77,6 +78,20 @@ class CashpointController {
     @GetMapping("/cashpoint/{cashpointId}/order/rt/clear")
     fun clearOrder(@PathVariable("cashpointId") cashpointId: String): ResponseEntity<String> {
         Database.getDatabase().liveOrderTable.clear(listOf(Triple("cashpoint_id", "=", cashpointId)))
+        return ResponseEntity.ok().body("OK")
+    }
+
+    @GetMapping("/cashpoint/{cashpointId}/order/rt/confirm")
+    fun confirmOrder(@PathVariable("cashpointId") cashpointId: String): ResponseEntity<String> {
+        val database = Database.getDatabase()
+        val detail = arrayListOf<OrderDetail>()
+        val liveOrder = database.liveOrderTable.filter(listOf(Triple("cashpoint_id", "=", cashpointId)))
+        liveOrder.forEach { lo ->
+            detail.add(OrderDetail(lo.productId, lo.amount!!))
+        }
+        val order = Order(null, detail, cashpointId, null, 0)
+        database.orderTable.create(order)
+        database.liveOrderTable.clear(listOf(Triple("cashpoint_id", "=", cashpointId)))
         return ResponseEntity.ok().body("OK")
     }
 }
