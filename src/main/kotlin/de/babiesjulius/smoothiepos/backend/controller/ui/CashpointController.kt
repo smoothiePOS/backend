@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping
 @Controller
 class CashpointController {
 
-    private data class CashpointProduct(val id: String, val name: String, val price: Int, val available: Boolean)
+    private data class CashpointProduct(val id: String, val name: String, val price: Int, val deposit: Int, val available: Boolean)
     private data class CashpointCashpointsResponseCashpoint(val name: String, val available: Boolean)
     private data class CashpointCashpointsResponse(val cashpoints: Map<String, CashpointCashpointsResponseCashpoint>)
 
@@ -28,7 +28,7 @@ class CashpointController {
             product.ingredients.forEach {
                 filter.add(Triple("ingredient_id", "=", it))
             }
-            cashpointProducts.add(CashpointProduct(product.id!!, product.name, product.price, product.available && database.ingredientTable.read().filter { it.id in product.ingredients }.all { it.available }))
+            cashpointProducts.add(CashpointProduct(product.id!!, product.name, product.price, 100, product.available && database.ingredientTable.read().filter { it.id in product.ingredients }.all { it.available })) // TODO deposit to database
         }
         return ResponseEntity.ok().body(Gson().toJson(cashpointProducts))
     }
