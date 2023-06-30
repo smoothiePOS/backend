@@ -83,7 +83,7 @@ class OrderTable : Table<Order>(
                 sql += " AND "
             }
         }
-        val resultSet = statement.executeQuery("$sql ORDER BY id")
+        val resultSet = statement.executeQuery("$sql ORDER BY create_at")
         val orders = arrayListOf<Order>()
         while (resultSet.next()) {
             orders.add(
