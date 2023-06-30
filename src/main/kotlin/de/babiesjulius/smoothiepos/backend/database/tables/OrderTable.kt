@@ -54,8 +54,8 @@ class OrderTable : Table<Order>(
             orders.add(
                 Order(
                     resultSet.getString("id"),
-                    listOf(),
-                    resultSet.getString("cashpoint"),
+                    Database.getDatabase().orderDetailTable.filter(listOf(Triple("order_id", "=", resultSet.getString("id")))).toList(),
+                    resultSet.getString("cashpoint_id"),
                     resultSet.getTimestamp("create_at").time,
                     resultSet.getInt("status")
                 )
