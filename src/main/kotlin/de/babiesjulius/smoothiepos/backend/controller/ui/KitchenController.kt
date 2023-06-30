@@ -17,7 +17,7 @@ class KitchenController {
     @GetMapping("/kitchen/orders")
     fun getOrders(): ResponseEntity<String> {
         val database = Database.getDatabase()
-        val orders = database.orderTable.read()
+        val orders = database.orderTable.filter(listOf(Triple("status", "=", "0"))).toList()
         val kitchenOrders = arrayListOf<KitchenOrder>()
         orders.forEach { order ->
             val kitchenOrderDetails = arrayListOf<KitchenOrderDetail>()
@@ -30,7 +30,7 @@ class KitchenController {
         return ResponseEntity.ok().body(Gson().toJson(kitchenOrders))
     }
 
-    @PostMapping("/kitchen/order/{orderId}/finish")
+    @GetMapping("/kitchen/order/{orderId}/finish")
     fun finishOrder(@PathVariable orderId: String): ResponseEntity<String> {
         val database = Database.getDatabase()
         database.orderTable.update(database.orderTable.find(orderId)!!.copy(status = 1))

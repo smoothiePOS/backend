@@ -68,7 +68,7 @@ class OrderTable : Table<Order>(
     }
 
     override fun find(id: String): Order? {
-        TODO("Not yet implemented")
+        return this.filter(listOf(Triple("id", "=", id))).firstOrNull()
     }
 
     override fun filter(filter: List<Triple<String, String, String>>): Array<Order> {
