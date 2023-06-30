@@ -38,7 +38,10 @@ class OrderTable : Table<Order>(
     }
 
     override fun update(item: Order) {
-        TODO("Not yet implemented")
+        val connection = getConnection()
+        val statement = connection.createStatement()
+        statement.executeUpdate("UPDATE ${Tables.ORDER} SET status = ${item.status} WHERE id = '${item.id}'")
+        statement.close()
     }
 
     override fun read(): Array<Order> {
