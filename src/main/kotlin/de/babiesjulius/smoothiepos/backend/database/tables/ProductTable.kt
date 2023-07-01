@@ -37,6 +37,13 @@ class ProductTable : Table<Product>(
         TODO("Not yet implemented")
     }
 
+    fun changeAvailability(item: Product) {
+        val connection = Database.getConnection()
+        val statement = connection.createStatement()
+        statement.executeUpdate("UPDATE ${Tables.PRODUCT} SET available = ${item.available} WHERE id = '${item.id}'")
+        statement.close()
+    }
+
     override fun read(): Array<Product> {
         val connection = Database.getConnection()
         val statement = connection.createStatement()
