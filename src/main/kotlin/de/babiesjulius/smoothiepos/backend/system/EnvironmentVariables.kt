@@ -5,5 +5,6 @@ enum class EnvironmentVariables {
     DATABASE_PORT,
     DATABASE_NAME,
     DATABASE_USER,
-    DATABASE_PASSWORD
+    DATABASE_PASSWORD,
+    URL_PREFIX
 }
