@@ -5,7 +5,6 @@ import de.babiesjulius.smoothiepos.backend.system.EnvironmentVariables
 import org.apache.logging.log4j.LogManager
 import java.sql.Connection
 import java.sql.DriverManager
-import java.util.Objects
 
 class Database {
 
