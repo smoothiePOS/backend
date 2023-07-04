@@ -80,12 +80,11 @@ class OrderTable : Table<Order>(
         } else {
             ""
         }
-        filter.forEachIndexed { index, triple ->
-            sql += "${triple.first} ${triple.second} '${triple.third}'"
-            if (index < filter.size - 1) {
-                sql += " AND "
-            }
+
+        sql = filter.filter { it.first != "" }.joinToString(separator = " AND ") { triple ->
+            "$sql ${triple.first} ${triple.second} '${triple.third}'"
         }
+
         val resultSet = statement.executeQuery("$sql ORDER BY create_at")
         val orders = arrayListOf<Order>()
         while (resultSet.next()) {
