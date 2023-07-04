@@ -5,7 +5,6 @@ import de.babiesjulius.smoothiepos.backend.system.EnvironmentVariables
 import org.apache.logging.log4j.LogManager
 import java.sql.Connection
 import java.sql.DriverManager
-import java.util.Objects
 
 class Database {
 
@@ -26,7 +25,7 @@ class Database {
             return db!!
         }
         @JvmStatic fun getConnection(): Connection {
-            if (connection == null) {
+            if (connection == null || connection!!.isClosed) {
                 LogManager.getLogger().warn("CREATING NEW DATABASE CONNECTION")
                 connection = DriverManager.getConnection(
                     "jdbc:mysql://${System.getenv(EnvironmentVariables.DATABASE_HOST.name)}:" +
