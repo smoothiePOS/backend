@@ -26,7 +26,7 @@ class Database {
             return db!!
         }
         @JvmStatic fun getConnection(): Connection {
-            if (connection == null) {
+            if (connection == null || connection!!.isClosed) {
                 LogManager.getLogger().warn("CREATING NEW DATABASE CONNECTION")
                 connection = DriverManager.getConnection(
                     "jdbc:mysql://${System.getenv(EnvironmentVariables.DATABASE_HOST.name)}:" +
