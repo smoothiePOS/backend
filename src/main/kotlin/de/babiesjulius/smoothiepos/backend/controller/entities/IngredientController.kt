@@ -2,7 +2,9 @@ package de.babiesjulius.smoothiepos.backend.controller.entities
 
 import de.babiesjulius.smoothiepos.backend.database.Database
 import de.babiesjulius.smoothiepos.backend.objects.Ingredient
+import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -22,7 +24,14 @@ class IngredientController {
     @ApiResponses(
         ApiResponse(
             responseCode = "200", description = "Successfully created ingredient", content = [
-                Content(mediaType = "application/json", schema = io.swagger.v3.oas.annotations.media.Schema(implementation = String::class, description = "ID of the created ingredient", example = "86c3d35e-13d1-4755-9f29-3ab552e109cb"))
+                Content(
+                    mediaType = "application/json",
+                    schema = io.swagger.v3.oas.annotations.media.Schema(
+                        implementation = String::class,
+                        description = "ID of the created ingredient",
+                        example = "86c3d35e-13d1-4755-9f29-3ab552e109cb"
+                    )
+                )
             ]
         ),
         ApiResponse(responseCode = "400", description = "Ingredient with this name already exists")
@@ -47,7 +56,14 @@ class IngredientController {
     @ApiResponses(
         ApiResponse(
             responseCode = "200", description = "Successfully fetched ingredients", content = [
-                Content(mediaType = "application/json", schema = io.swagger.v3.oas.annotations.media.Schema(implementation = Array<Ingredient>::class, description = "Array of ingredients"))
+                Content(
+                    mediaType = "application/json",
+                    array = ArraySchema(
+                        arraySchema = Schema(
+                            implementation = Ingredient::class
+                        )
+                    )
+                )
             ]
         )
     )
