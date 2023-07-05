@@ -13,7 +13,8 @@ class OrderTable : Table<Order>(
         Column("id", "UUID PRIMARY KEY DEFAULT UUID()"),
         Column("cashpoint_id", "UUID"),
         Column("status", "INT DEFAULT 0"),
-        Column("create_at", "TIMESTAMP DEFAULT CURRENT_TIMESTAMP"),
+        Column("extra", "TEXT"),
+        Column("create_at", "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     ),
     hashMapOf(
         "cashpoint_id" to "cashpoint(id)"
@@ -24,7 +25,11 @@ class OrderTable : Table<Order>(
         val connection = getConnection()
         val statement = connection.createStatement()
         val id = this.createUUID()
-        statement.executeUpdate("INSERT INTO ${Tables.ORDER} (id, cashpoint_id) VALUES ('$id', '${item.cashpoint}')")
+        if (item.extra == null) {
+            statement.executeUpdate("INSERT INTO ${Tables.ORDER} (id, cashpoint_id) VALUES ('$id', '${item.cashpoint}'")
+        } else {
+            statement.executeUpdate("INSERT INTO ${Tables.ORDER} (id, cashpoint_id, extra) VALUES ('$id', '${item.cashpoint}', '${item.extra?.replace("'", "''")}')")
+        }
 
         item.products.forEach { orderDetail ->
             OrderDetailTable().create(orderDetail, id)
@@ -57,7 +62,8 @@ class OrderTable : Table<Order>(
                     Database.getDatabase().orderDetailTable.filter(listOf(Triple("order_id", "=", resultSet.getString("id")))).toList(),
                     resultSet.getString("cashpoint_id"),
                     resultSet.getTimestamp("create_at").time,
-                    resultSet.getInt("status")
+                    resultSet.getInt("status"),
+                    resultSet.getString("extra")
                 )
             )
         }
@@ -94,7 +100,8 @@ class OrderTable : Table<Order>(
                     Database.getDatabase().orderDetailTable.filter(listOf(Triple("order_id", "=", resultSet.getString("id")))).toList(),
                     resultSet.getString("cashpoint_id"),
                     resultSet.getTimestamp("create_at").time,
-                    resultSet.getInt("status")
+                    resultSet.getInt("status"),
+                    resultSet.getString("extra")
                 )
             )
         }
