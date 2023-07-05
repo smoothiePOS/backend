@@ -26,7 +26,7 @@ class OrderTable : Table<Order>(
         val statement = connection.createStatement()
         val id = this.createUUID()
         if (item.extra == null) {
-            statement.executeUpdate("INSERT INTO ${Tables.ORDER} (id, cashpoint_id) VALUES ('$id', '${item.cashpoint}'")
+            statement.executeUpdate("INSERT INTO ${Tables.ORDER} (id, cashpoint_id) VALUES ('$id', '${item.cashpoint}')")
         } else {
             statement.executeUpdate("INSERT INTO ${Tables.ORDER} (id, cashpoint_id, extra) VALUES ('$id', '${item.cashpoint}', '${item.extra?.replace("'", "''")}')")
         }
