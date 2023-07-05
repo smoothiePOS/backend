@@ -13,7 +13,7 @@ class ProductTable : Table<Product>(
         Column("name", "varchar(255)", unique = true),
         Column("price", "int"),
         Column("description", "varchar(255)"),
-        Column("category", "varchar(255)"),
+        Column("image", "varchar(255)"),
         Column("available", "boolean DEFAULT 0")
     )
 ) {
@@ -21,7 +21,7 @@ class ProductTable : Table<Product>(
         val connection = Database.getConnection()
         val statement = connection.createStatement()
         val uuid = this.createUUID()
-        statement.executeUpdate("INSERT INTO ${Tables.PRODUCT} (id, name, price, description, category, available) VALUES ('$uuid', '${item.name}', ${item.price}, '${item.description}', '${item.category}', ${item.available})")
+        statement.executeUpdate("INSERT INTO ${Tables.PRODUCT} (id, name, price, description, image, available) VALUES ('$uuid', '${item.name}', ${item.price}, '${item.description}', '${item.image}', ${item.available})")
         statement.close()
         item.ingredients.forEach { ingredient ->
             Database.getDatabase().ingredientsTable.create(item.apply { id = uuid }, Ingredient(ingredient, ""))
@@ -57,7 +57,7 @@ class ProductTable : Table<Product>(
                     resultSet.getString("name"),
                     resultSet.getInt("price"),
                     resultSet.getString("description"),
-                    resultSet.getString("category"),
+                    resultSet.getString("image"),
                     Database.getDatabase().ingredientsTable.filter(listOf(Triple("product_id", "=", resultSet.getString("id")))).map { it.ingredientId },
                     resultSet.getBoolean("available")
                 )
@@ -74,7 +74,7 @@ class ProductTable : Table<Product>(
         val connection = Database.getConnection()
         val statement = connection.createStatement()
         val resultSet = statement.executeQuery("SELECT * FROM ${Tables.PRODUCT} WHERE id = '$id'")
-        val product: Product? = if (resultSet.next()) Product(resultSet.getString("id"), resultSet.getString("name"), resultSet.getInt("price"), resultSet.getString("description"), resultSet.getString("category"), listOf(), resultSet.getBoolean("available")) else null
+        val product: Product? = if (resultSet.next()) Product(resultSet.getString("id"), resultSet.getString("name"), resultSet.getInt("price"), resultSet.getString("description"), resultSet.getString("image"), listOf(), resultSet.getBoolean("available")) else null
         resultSet.close()
         statement.close()
         return product

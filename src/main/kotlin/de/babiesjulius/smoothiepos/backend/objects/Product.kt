@@ -1,6 +1,6 @@
 package de.babiesjulius.smoothiepos.backend.objects
 
-data class Product(var id: String?, val name: String, val price: Int, val description: String?, val category: String?, var ingredients: List<String> = listOf(), val available: Boolean = false) {
+data class Product(var id: String?, val name: String, val price: Int, val description: String?, val image: String?, var ingredients: List<String> = listOf(), val available: Boolean = false) {
     override fun equals(other: Any?): Boolean {
         if (other !is Product) return false
         return this.id == other.id
