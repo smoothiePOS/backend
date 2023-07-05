@@ -45,8 +45,8 @@ class StatisticController {
             val database = Database.getDatabase()
             val orders = database.orderTable.filter(listOf(
                 Triple("status", "=", "1"),
-                if (from != "0") Triple("create_at", ">=", from) else Triple("", "", ""),
-                if (to != "0") Triple("create_at", "<=", to) else Triple("", "", "")
+                if (from != "0") Triple("UNIX_TIMESTAMP(create_at)", ">=", from) else Triple("", "", ""),
+                if (to != "0") Triple("UNIX_TIMESTAMP(create_at)", "<=", to) else Triple("", "", "")
             ))
             val products = database.productTable.read()
             val soldProducts = arrayListOf<StatisticsProductSoldResponseProduct>()

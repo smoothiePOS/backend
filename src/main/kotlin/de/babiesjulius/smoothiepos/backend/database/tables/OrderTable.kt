@@ -81,14 +81,10 @@ class OrderTable : Table<Order>(
         val connection = getConnection()
         val statement = connection.createStatement()
         var sql = "SELECT * FROM ${Tables.ORDER}"
-        sql += if (filter.isNotEmpty()) {
-            " WHERE "
-        } else {
-            ""
-        }
+        if (filter.isNotEmpty()) sql += " WHERE "
 
-        sql = filter.filter { it.first != "" }.joinToString(separator = " AND ") { triple ->
-            "$sql ${triple.first} ${triple.second} '${triple.third}'"
+        sql += filter.filter { it.first != "" }.joinToString(separator = " AND ") { triple ->
+            "${triple.first} ${triple.second} '${triple.third}'"
         }
 
         val resultSet = statement.executeQuery("$sql ORDER BY create_at")
