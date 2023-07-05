@@ -102,4 +102,10 @@ class ProductController {
         Database.getDatabase().productTable.changeAvailability(product.copy(available = available))
         return ResponseEntity.status(200).build()
     }
+
+    @GetMapping("/product/random/available")
+    fun getRandomProductId(): ResponseEntity<String> {
+        val database = Database.getDatabase()
+        return ResponseEntity.ok(database.productTable.filter(listOf(Triple("available", "=", "1"))).random().id)
+    }
 }

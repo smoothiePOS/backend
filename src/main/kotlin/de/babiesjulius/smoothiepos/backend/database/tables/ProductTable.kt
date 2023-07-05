@@ -81,6 +81,25 @@ class ProductTable : Table<Product>(
     }
 
     override fun filter(filter: List<Triple<String, String, String>>): Array<Product> {
-        TODO("Not yet implemented")
+        val connection = Database.getConnection()
+        val statement = connection.createStatement()
+        val resultSet = statement.executeQuery("SELECT * FROM ${Tables.PRODUCT} WHERE ${filter.joinToString(" AND ") { "${it.first} ${it.second} '${it.third}'" }}")
+        val products = arrayListOf<Product>()
+        while (resultSet.next()) {
+            products.add(
+                Product(
+                    resultSet.getString("id"),
+                    resultSet.getString("name"),
+                    resultSet.getInt("price"),
+                    resultSet.getString("description"),
+                    resultSet.getString("image"),
+                    Database.getDatabase().ingredientsTable.filter(listOf(Triple("product_id", "=", resultSet.getString("id")))).map { it.ingredientId },
+                    resultSet.getBoolean("available")
+                )
+            )
+        }
+        resultSet.close()
+        statement.close()
+        return products.toTypedArray()
     }
 }
