@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import java.sql.SQLIntegrityConstraintViolationException
 
@@ -37,7 +38,7 @@ class IngredientController {
         ApiResponse(responseCode = "400", description = "Ingredient with this name already exists")
     )
     @PostMapping("/ingredient")
-    fun createIngredient(ingredient: IngredientPostRequest): ResponseEntity<String> {
+    fun createIngredient(@RequestBody ingredient: IngredientPostRequest): ResponseEntity<String> {
         return try {
             ResponseEntity.status(200).body(
                 Database.getDatabase().ingredientTable.create(

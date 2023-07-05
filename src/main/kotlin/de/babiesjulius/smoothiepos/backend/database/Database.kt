@@ -34,6 +34,17 @@ class Database {
                     System.getenv(EnvironmentVariables.DATABASE_USER.name),
                     System.getenv(EnvironmentVariables.DATABASE_PASSWORD.name))
             }
+            try {
+                connection!!.createStatement().execute("SELECT 1")
+            } catch (e: Exception) {
+                LogManager.getLogger().warn("DATABASE CONNECTION LOST, RECONNECTING")
+                connection = DriverManager.getConnection(
+                    "jdbc:mysql://${System.getenv(EnvironmentVariables.DATABASE_HOST.name)}:" +
+                            "${System.getenv(EnvironmentVariables.DATABASE_PORT.name)}/" +
+                            System.getenv(EnvironmentVariables.DATABASE_NAME.name),
+                    System.getenv(EnvironmentVariables.DATABASE_USER.name),
+                    System.getenv(EnvironmentVariables.DATABASE_PASSWORD.name))
+            }
             return connection!!
         }
     }

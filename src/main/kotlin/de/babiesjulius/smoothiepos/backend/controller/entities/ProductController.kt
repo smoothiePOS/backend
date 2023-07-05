@@ -23,6 +23,7 @@ class ProductController {
         val name: String,
         val price: Int,
         val description: String,
+        val image: String,
         val ingredients: List<String>,
         val available: Boolean = false
     )
@@ -56,7 +57,7 @@ class ProductController {
                         product.name,
                         product.price,
                         "",
-                        null,
+                        product.image,
                         product.ingredients,
                         product.available
                     )
