@@ -10,11 +10,13 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.valueextraction.ExtractedValue
 import org.springframework.http.HttpEntity
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -179,17 +181,23 @@ class CashpointController {
             )]
         )
     )
-    @GetMapping("/cashpoint/{cashpointId}/order/rt/confirm")
-    fun confirmOrder(@PathVariable("cashpointId") cashpointId: String): ResponseEntity<String> {
+    @PostMapping("/cashpoint/{cashpointId}/order/rt/confirm")
+    fun confirmOrder(httpEntity: HttpEntity<String>, @PathVariable("cashpointId") cashpointId: String): ResponseEntity<String> {
+        var extra: String? = null
+        if (httpEntity.body != null) {
+            extra = Gson().fromJson(httpEntity.body, ConfirmOrderRequest::class.java).extra
+        }
         val database = Database.getDatabase()
         val detail = arrayListOf<OrderDetail>()
         val liveOrder = database.liveOrderTable.filter(listOf(Triple("cashpoint_id", "=", cashpointId)))
         liveOrder.forEach { lo ->
             detail.add(OrderDetail(lo.productId, lo.amount!!))
         }
-        val order = Order(null, detail, cashpointId, null, 0)
+        val order = Order(null, detail, cashpointId, null, 0, extra)
         database.orderTable.create(order)
         database.liveOrderTable.clear(listOf(Triple("cashpoint_id", "=", cashpointId)))
         return ResponseEntity.ok().build()
     }
+
+    data class ConfirmOrderRequest(val extra: String?)
 }
