@@ -38,4 +38,35 @@ class StatisticController {
             ResponseEntity.internalServerError().build()
         }
     }
+
+    @GetMapping("/statistic/{from}/{to}/products/sold")
+    fun soldProducts(@PathVariable from: String, @PathVariable to: String): ResponseEntity<Array<StatisticsProductSoldResponseProduct>> {
+        return try {
+            val database = Database.getDatabase()
+            val orders = database.orderTable.filter(listOf(
+                Triple("status", "=", "1"),
+                if (from != "0") Triple("create_at", ">=", from) else Triple("", "", ""),
+                if (to != "0") Triple("create_at", "<=", to) else Triple("", "", "")
+            ))
+            val products = database.productTable.read()
+            val soldProducts = arrayListOf<StatisticsProductSoldResponseProduct>()
+            products.forEach { product ->
+                var amount = 0
+                orders.forEach { order ->
+                    order.products.forEach { orderDetail ->
+                        if (orderDetail.productId == product.id) {
+                            amount += orderDetail.amount
+                        }
+                    }
+                }
+                soldProducts.add(StatisticsProductSoldResponseProduct(product.name, amount, product.price))
+            }
+            ResponseEntity.ok(soldProducts.toTypedArray())
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ResponseEntity.internalServerError().build()
+        }
+    }
+
+    data class StatisticsProductSoldResponseProduct(val name: String, val amount: Int, val price: Int)
 }
