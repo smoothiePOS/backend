@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 @Tag(name = "Kitchen", description = "The Kitchen API - used for single kitchen display and product management")
 class KitchenController {
 
-    data class KitchenOrder(val id: String, val products: List<KitchenOrderDetail>, val date: Long)
+    data class KitchenOrder(val id: String, val products: List<KitchenOrderDetail>, val date: Long, val extra: String?)
     data class KitchenOrderDetail(val product: String, val amount: Int)
 
     @ApiResponses(
@@ -44,7 +44,7 @@ class KitchenController {
                 val productObject = database.productTable.find(product.productId)
                 kitchenOrderDetails.add(KitchenOrderDetail(productObject?.name ?: "Unknown", product.amount))
             }
-            kitchenOrders.add(KitchenOrder(order.id!!, kitchenOrderDetails, order.date!!))
+            kitchenOrders.add(KitchenOrder(order.id!!, kitchenOrderDetails, order.date!!, order.extra))
         }
         return ResponseEntity.ok().body(kitchenOrders.toTypedArray())
     }
