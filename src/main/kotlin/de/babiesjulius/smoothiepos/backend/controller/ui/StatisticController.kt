@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
-import kotlin.math.floor
 
 @RestController
 @Tag(name = "Statistic", description = "Statistic API")
@@ -46,8 +45,8 @@ class StatisticController {
             val database = Database.getDatabase()
             val orders = database.orderTable.filter(listOf(
                 Triple("status", "=", "1"),
-                if (from != "0") Triple("create_at", ">=", floor((from.toLong()/1000).toDouble()).toString()) else Triple("", "", ""),
-                if (to != "0") Triple("create_at", "<=", floor((to.toLong()/1000).toDouble()).toString()) else Triple("", "", "")
+                if (from != "0") Triple("UNIX_TIMESTAMP(create_at)", ">=", from) else Triple("", "", ""),
+                if (to != "0") Triple("UNIX_TIMESTAMP(create_at)", "<=", to) else Triple("", "", "")
             ))
             val products = database.productTable.read()
             val soldProducts = arrayListOf<StatisticsProductSoldResponseProduct>()
