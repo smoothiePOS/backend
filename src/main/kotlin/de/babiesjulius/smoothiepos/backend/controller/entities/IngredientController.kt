@@ -79,9 +79,16 @@ class IngredientController {
     )
     @GetMapping("/ingredient/{id}/availability/{available}")
     fun setIngredientAvailable(@PathVariable id: String, @PathVariable available: Boolean): ResponseEntity<String> {
-        val ingredient = Database.getDatabase().ingredientTable.find(id) ?: return ResponseEntity.status(400)
+        val database = Database.getDatabase()
+        val ingredient = database.ingredientTable.find(id) ?: return ResponseEntity.status(400)
             .body("Ingredient not found")
-        Database.getDatabase().ingredientTable.update(ingredient.copy(available = available))
+        database.ingredientTable.update(ingredient.copy(available = available))
+        if (!available) {
+            val ingredients = database.ingredientsTable.filter(listOf(Triple("ingredient_id", "=", id)))
+            ingredients.forEach {
+                database.liveOrderTable.delete(listOf(Triple("product_id", "=", it.productId)))
+            }
+        }
         return ResponseEntity.status(200).build()
     }
 }

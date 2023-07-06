@@ -37,7 +37,7 @@ abstract class Table<T>(
     }
 
     fun createUUID(): String {
-        var uuid: String = ""
+        var uuid: String
         while (true) {
             uuid = UUID.randomUUID().toString()
             val connection = Database.getConnection()
@@ -77,6 +77,12 @@ abstract class Table<T>(
 
     abstract fun find(id: String): T?
     abstract fun filter(filter: List<Triple<String, String, String>>) : Array<T>
+    fun delete(filter: List<Triple<String, String, String>>) {
+        val connection = Database.getConnection()
+        val statement = connection.createStatement()
+        statement.executeUpdate("DELETE FROM $name WHERE ${filter.joinToString(" AND ") { "${it.first} ${it.second} '${it.third}'" }}")
+        statement.close()
+    }
 }
 
 class Column(val name: String, val type: String, val unique: Boolean = false)

@@ -97,9 +97,11 @@ class ProductController {
     )
     @GetMapping("/product/{id}/availability/{available}")
     fun setProductAvailable(@PathVariable id: String, @PathVariable available: Boolean): ResponseEntity<String> {
+        val database = Database.getDatabase()
         val product =
-            Database.getDatabase().productTable.find(id) ?: return ResponseEntity.status(400).body("Product not found")
-        Database.getDatabase().productTable.changeAvailability(product.copy(available = available))
+            database.productTable.find(id) ?: return ResponseEntity.status(400).body("Product not found")
+        database.productTable.changeAvailability(product.copy(available = available))
+        if (!available) database.liveOrderTable.delete(listOf(Triple("product_id", "=", id)))
         return ResponseEntity.status(200).build()
     }
 
